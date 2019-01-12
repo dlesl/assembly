@@ -17,6 +17,7 @@ use std::collections::{HashMap, HashSet};
 use std::iter::Iterator;
 use std::mem;
 use std::ops::{Index, IndexMut};
+use std::borrow::Borrow;
 pub use MatchIdx::*;
 
 const MAX_PATH_LEN: usize = 100;
@@ -142,6 +143,12 @@ impl<'a> SeqType for &'a [u8] {
 }
 
 impl SeqType for Seq {
+    fn seq(&self) -> &[u8] {
+        &self.seq
+    }
+}
+
+impl<'a> SeqType for &'a Seq {
     fn seq(&self) -> &[u8] {
         &self.seq
     }
@@ -423,7 +430,7 @@ pub fn product_len<T: SeqType>(path: &Path, seqs: &[T]) -> u32 {
 }
 
 /// Extracts products retaining annotations
-pub fn extract_product_seq(path: &Path, seqs: &[Seq]) -> Seq {
+pub fn extract_product_seq<T: Borrow<Seq>>(path: &Path, seqs: &[T]) -> Seq {
     assert!(path.len() > 1);
     let circular = (path[0].1).2 != 0;
     let mut res = Seq::empty();
@@ -434,13 +441,13 @@ pub fn extract_product_seq(path: &Path, seqs: &[Seq]) -> Seq {
         let mut extend = |idx: &MatchIdx, a: u32, b: u32, len: u32| {
             let (mut seq, truncate) = match *idx {
                 Idx(i) => {
-                    let seq = &seqs[i as usize];
+                    let seq = seqs[i as usize].borrow();
                     let end = cmp::min(i64::from(b + len), seq.len());
                     let mut res = seq.extract_range(i64::from(a), end);
                     (res, end - i64::from(b))
                 }
                 IdxRc(i) => {
-                    let seq = &seqs[i as usize];
+                    let seq = seqs[i as usize].borrow();
                     let b_rc = seq.len() - i64::from(b);
                     let end = cmp::max(b_rc, 0);
                     let mut res = seq.extract_range(end, seq.len() - i64::from(a)).revcomp();
@@ -471,7 +478,7 @@ pub fn extract_product_seq(path: &Path, seqs: &[Seq]) -> Seq {
             extend(idx, a, b, len);
         } else {
             let &Node(ref idx, Match(_, a, _)) = path.last().unwrap();
-            extend(idx, a, seqs[idx.index()].len() as u32, 0);
+            extend(idx, a, seqs[idx.index()].borrow().len() as u32, 0);
         }
     }
     if circular {
