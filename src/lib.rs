@@ -747,8 +747,8 @@ mod tests {
             vec![
                 Position::simple_span(0, 9),
                 Position::Join(vec![
-                    Position::simple_span(0, 2),
                     Position::simple_span(7, 13),
+                    Position::simple_span(0, 2),
                 ]),
             ],
         );
