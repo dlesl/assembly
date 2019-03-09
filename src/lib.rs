@@ -18,7 +18,7 @@ use std::iter::Iterator;
 use std::mem;
 use std::ops::{Index, IndexMut};
 use std::borrow::Borrow;
-pub use MatchIdx::*;
+pub use crate::MatchIdx::*;
 
 const MAX_PATH_LEN: usize = 100;
 const MAX_PATHS: usize = 100_000;
@@ -443,7 +443,7 @@ pub fn extract_product_seq<T: Borrow<Seq>>(path: &Path, seqs: &[T]) -> Seq {
                 Idx(i) => {
                     let seq = seqs[i as usize].borrow();
                     let end = cmp::min(i64::from(b + len), seq.len());
-                    let mut res = seq.extract_range(i64::from(a), end);
+                    let res = seq.extract_range(i64::from(a), end);
                     (res, end - i64::from(b))
                 }
                 IdxRc(i) => {

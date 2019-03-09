@@ -1,4 +1,5 @@
 [package]
+edition = "2018"
 name = "assembly"
 version = "0.1.0"
 
@@ -6,6 +7,7 @@ version = "0.1.0"
 bio = "0.25"
 itertools = "0.8.0"
 failure = "0.1.5"
-gb-io = "0.1.0"
+#gb-io = "0.1.0"
+gb-io = {path="../gb-io"}
 log = "0.4.6"
 
