@@ -60,7 +60,7 @@ fn run() -> Result<(), Error> {
                 for &Match(start, start_other, len) in positions {
                     let f = Feature {
                         kind: feature_kind!("misc_feature"),
-                        pos: s.range_to_position(i64::from(start), i64::from(start + len)),
+                        location: s.range_to_location(i64::from(start), i64::from(start + len)),
                         qualifiers: vec![(
                             QualifierKey::from("homology_region"),
                             Some(match other {
