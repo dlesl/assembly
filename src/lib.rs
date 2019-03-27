@@ -484,9 +484,9 @@ pub fn extract_product_seq<T: Borrow<Seq>>(path: &Path, seqs: &[T]) -> Seq {
     if circular {
         let features = mem::replace(&mut res.features, Vec::new());
         for mut f in features {
-            match res.wrap_position(f.pos) {
-                Ok(p) => {
-                    f.pos = p;
+            match res.wrap_location(f.location) {
+                Ok(l) => {
+                    f.location = l;
                     res.features.push(f);
                 }
                 Err(e) => {
@@ -706,13 +706,13 @@ mod tests {
     fn test_extract_seq() {
         use super::*;
         use gb_io::seq::*;
-        let make_seq = |positions: Vec<Position>| Seq {
+        let make_seq = |positions: Vec<Location>| Seq {
             seq: "gatcgatgat".into(),
             topology: Topology::Linear,
             features: positions
                 .into_iter()
-                .map(|p| Feature {
-                    pos: p,
+                .map(|l| Feature {
+                    location: l,
                     kind: feature_kind!(""),
                     qualifiers: Vec::new(),
                 })
@@ -720,35 +720,35 @@ mod tests {
             ..Seq::empty()
         };
         let seqs = vec![
-            make_seq(vec![Position::simple_span(0, 9)]),
-            make_seq(vec![Position::simple_span(0, 9)]),
+            make_seq(vec![Location::simple_span(0, 9)]),
+            make_seq(vec![Location::simple_span(0, 9)]),
         ];
         let check = |v1, v2| {
             let res = super::extract_product_seq(&v1, &seqs);
             println!("{}", String::from_utf8_lossy(&res.seq));
             assert_eq!(
-                res.features.into_iter().map(|f| f.pos).collect::<Vec<_>>(),
+                res.features.into_iter().map(|f| f.location).collect::<Vec<_>>(),
                 v2
             );
         };
         check(
             vec![Node(Idx(0), Match(0, 0, 0)), Node(Idx(1), Match(7, 0, 3))],
-            vec![Position::simple_span(0, 9), Position::simple_span(7, 16)],
+            vec![Location::simple_span(0, 9), Location::simple_span(7, 16)],
         );
         check(
             vec![Node(Idx(0), Match(0, 0, 0)), Node(IdxRc(1), Match(7, 0, 3))],
             vec![
-                Position::simple_span(0, 9),
-                Position::Complement(Box::new(Position::simple_span(7, 16))),
+                Location::simple_span(0, 9),
+                Location::Complement(Box::new(Location::simple_span(7, 16))),
             ],
         );
         check(
             vec![Node(Idx(0), Match(7, 0, 3)), Node(Idx(1), Match(7, 0, 3))],
             vec![
-                Position::simple_span(0, 9),
-                Position::Join(vec![
-                    Position::simple_span(7, 13),
-                    Position::simple_span(0, 2),
+                Location::simple_span(0, 9),
+                Location::Join(vec![
+                    Location::simple_span(7, 13),
+                    Location::simple_span(0, 2),
                 ]),
             ],
         );
