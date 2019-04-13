@@ -720,8 +720,8 @@ mod tests {
             ..Seq::empty()
         };
         let seqs = vec![
-            make_seq(vec![Location::simple_span(0, 9)]),
-            make_seq(vec![Location::simple_span(0, 9)]),
+            make_seq(vec![Location::simple_range(0, 10)]),
+            make_seq(vec![Location::simple_range(0, 10)]),
         ];
         let check = |v1, v2| {
             let res = super::extract_product_seq(&v1, &seqs);
@@ -733,22 +733,22 @@ mod tests {
         };
         check(
             vec![Node(Idx(0), Match(0, 0, 0)), Node(Idx(1), Match(7, 0, 3))],
-            vec![Location::simple_span(0, 9), Location::simple_span(7, 16)],
+            vec![Location::simple_range(0, 10), Location::simple_range(7, 17)],
         );
         check(
             vec![Node(Idx(0), Match(0, 0, 0)), Node(IdxRc(1), Match(7, 0, 3))],
             vec![
-                Location::simple_span(0, 9),
-                Location::Complement(Box::new(Location::simple_span(7, 16))),
+                Location::simple_range(0, 10),
+                Location::Complement(Box::new(Location::simple_range(7, 17))),
             ],
         );
         check(
             vec![Node(Idx(0), Match(7, 0, 3)), Node(Idx(1), Match(7, 0, 3))],
             vec![
-                Location::simple_span(0, 9),
+                Location::simple_range(0, 10),
                 Location::Join(vec![
-                    Location::simple_span(7, 13),
-                    Location::simple_span(0, 2),
+                    Location::simple_range(7, 14),
+                    Location::simple_range(0, 3),
                 ]),
             ],
         );
